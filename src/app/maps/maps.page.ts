@@ -1,5 +1,21 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, inject } from '@angular/core';
 import * as L from 'leaflet';
+import { DataService } from '../data.service';
+
+const iconRetinaUrl = 'assets/marker-icon-2x.png';
+const iconUrl = 'assets/marker-icon.png';
+const shadowUrl = 'assets/marker-shadow.png';
+const iconDefault = L.icon({
+  iconRetinaUrl,
+  iconUrl,
+  shadowUrl,
+  iconSize: [25, 41],
+  iconAnchor: [12, 41],
+  popupAnchor: [1, -34],
+  tooltipAnchor: [16, -28],
+  shadowSize: [41, 41],
+});
+L.Marker.prototype.options.icon = iconDefault;
 
 @Component({
   selector: 'app-maps',
@@ -10,7 +26,29 @@ import * as L from 'leaflet';
 export class MapsPage implements OnInit {
   map!: L.Map;
 
+  private dataService = inject(DataService);
+
   constructor() {}
+
+  async loadPoints() {
+    const points: any = await this.dataService.getPoints();
+    for (const key in points) {
+      if (points.hasOwnProperty(key)) {
+        const point = points[key];
+        const coordinates = point.coordinates
+          .split(',')
+          .map((c: string) => parseFloat(c));
+        const marker = L.marker(coordinates as L.LatLngExpression).addTo(
+          this.map
+        );
+        marker.bindPopup(`${point.name}`);
+      }
+    }
+
+    this.map.on('popupopen', (e) => {
+      const popup = e.popup;
+    });
+  }
 
   ngOnInit() {
     if (!this.map) {
@@ -25,6 +63,14 @@ export class MapsPage implements OnInit {
         );
 
         osm.addTo(this.map);
+
+        osm.addTo(this.map);
+        L.marker([-7.7956, 110.3695])
+          .addTo(this.map)
+          .bindPopup('yogyakarta')
+          .openPopup();
+
+          this.loadPoints();
       });
     }
   }

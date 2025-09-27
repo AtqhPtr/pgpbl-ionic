@@ -14,6 +14,6 @@ export class AuthService {
     return signInWithEmailAndPassword(auth, email, password);
   }
   register(email: string, password: string) {
-  return createUserWithEmailAndPassword(auth, email, password);
-}
+    return createUserWithEmailAndPassword(auth, email, password);
+  }
 }
